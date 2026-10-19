@@ -38,8 +38,27 @@ copyDir(
   path.join(release, "gateway")
 );
 
-// Point Next at staged output by also mirroring into apps/web/next-build
-// is already the source; host will prefer RELEASE_WEB if set.
+// Prisma client + Linux engines (Hostinger cannot download engines at runtime)
+const prismaSrc = path.join(root, "node_modules", ".prisma", "client");
+const prismaDest = path.join(release, "prisma");
+if (!fs.existsSync(path.join(prismaSrc, "index.js"))) {
+  throw new Error("Missing node_modules/.prisma/client — run prisma generate first");
+}
+fs.mkdirSync(prismaDest, { recursive: true });
+for (const name of fs.readdirSync(prismaSrc)) {
+  if (name.includes(".tmp") || name.includes("windows")) continue;
+  fs.cpSync(path.join(prismaSrc, name), path.join(prismaDest, name), {
+    recursive: true,
+  });
+}
+console.log(`[stage-release] ${prismaSrc} -> ${prismaDest} (linux engines)`);
+
+const dbTemplateSrc = path.join(root, "data", "app.db");
+const dbTemplateDest = path.join(release, "app.db.template");
+if (fs.existsSync(dbTemplateSrc)) {
+  fs.copyFileSync(dbTemplateSrc, dbTemplateDest);
+  console.log(`[stage-release] ${dbTemplateSrc} -> ${dbTemplateDest}`);
+}
 
 fs.writeFileSync(
   path.join(release, "READY"),

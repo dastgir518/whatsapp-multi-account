@@ -3,14 +3,14 @@
  * Hostinger entry — Entry file must be: server.js
  *
  * Hostinger only keeps git-tracked files in /nodejs (plus node_modules).
- * Next build output is committed under /release/web.
- * Prisma client must be generated at runtime (node_modules/.prisma is not in git).
+ * Build outputs live under /release and are copied into place at boot.
+ * Prisma cannot reliably `generate` on Hostinger (no engine download / broken npx),
+ * so the Linux client is committed under release/prisma.
  */
 "use strict";
 
 const fs = require("fs");
 const path = require("path");
-const { execSync } = require("child_process");
 
 process.env.NODE_ENV = process.env.NODE_ENV || "production";
 
@@ -41,27 +41,20 @@ const releaseHost = path.join(root, "release", "host", "index.js");
 const releaseWeb = path.join(root, "release", "web");
 const appsHost = path.join(root, "apps", "host", "build", "index.js");
 const nextBuild = path.join(root, "apps", "web", "next-build");
-const schemaPath = path.join(root, "packages", "db", "prisma", "schema.prisma");
+const releasePrisma = path.join(root, "release", "prisma");
+const prismaClientDir = path.join(root, "node_modules", ".prisma", "client");
+const releaseDbTemplate = path.join(root, "release", "app.db.template");
 
 function exists(p) {
   return fs.existsSync(p);
 }
 
-function run(cmd, label) {
-  console.log("[server.js]", label);
-  execSync(cmd, {
-    cwd: root,
-    stdio: "inherit",
-    env: process.env,
-  });
-}
-
 console.log("[server.js] PORT=", process.env.PORT || "(unset)");
 console.log("[server.js] release/host=", exists(releaseHost));
 console.log("[server.js] release/web=", exists(releaseWeb));
+console.log("[server.js] release/prisma=", exists(releasePrisma));
 console.log("[server.js] apps/host/build=", exists(appsHost));
 
-// Materialize outputs Hostinger keeps in /release into paths the app expects
 const releaseGateway = path.join(root, "release", "gateway");
 const appsGateway = path.join(root, "apps", "gateway", "build");
 const appsHostBuild = path.join(root, "apps", "host", "build");
@@ -80,20 +73,18 @@ if (exists(releaseHostDir) && !exists(appsHostBuild)) {
   fs.cpSync(releaseHostDir, appsHostBuild, { recursive: true });
 }
 
-// Hostinger npm install leaves @prisma/client as a stub — always generate + sync schema
-if (!exists(schemaPath)) {
-  console.error("[server.js] FATAL: missing", schemaPath);
+// Install Prisma client from release (Hostinger cannot run prisma generate reliably)
+if (!exists(path.join(releasePrisma, "index.js"))) {
+  console.error("[server.js] FATAL: release/prisma missing — redeploy latest main");
   process.exit(1);
 }
-try {
-  run(`npx prisma generate --schema="${schemaPath}"`, "prisma generate…");
-  run(
-    `npx prisma db push --schema="${schemaPath}" --skip-generate`,
-    "prisma db push…",
-  );
-} catch (err) {
-  console.error("[server.js] FATAL: prisma setup failed", err);
-  process.exit(1);
+console.log("[server.js] copying release/prisma -> node_modules/.prisma/client");
+fs.mkdirSync(path.dirname(prismaClientDir), { recursive: true });
+fs.cpSync(releasePrisma, prismaClientDir, { recursive: true });
+
+if (!exists(dbFile) && exists(releaseDbTemplate)) {
+  console.log("[server.js] seeding data/app.db from release/app.db.template");
+  fs.copyFileSync(releaseDbTemplate, dbFile);
 }
 
 const hostEntry = exists(releaseHost) ? releaseHost : appsHost;
