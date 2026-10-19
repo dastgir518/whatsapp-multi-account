@@ -13,8 +13,10 @@ Yes — the app is set up so **one Node process** runs everything:
 | Application type | **Other** |
 | Root directory | `/` (repo root) |
 | Build script | `build` |
-| Entry file | `server.js` |
+| Entry file | **`server.js`** (required — if this is empty you get 403) |
 | Node.js | **20** or **22** |
+
+Do **not** rely on `NODE_ENV=production` alone during install without `.npmrc` — the repo sets `production=false` so TypeScript/`@types` install for the build.
 
 Then **Redeploy** from GitHub `main`.
 

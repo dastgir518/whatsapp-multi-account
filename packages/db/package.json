@@ -11,9 +11,7 @@
     "build": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^6.5.0"
-  },
-  "devDependencies": {
+    "@prisma/client": "^6.5.0",
     "prisma": "^6.5.0",
     "typescript": "^5.8.2"
   }

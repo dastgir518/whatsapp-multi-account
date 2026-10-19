@@ -8,16 +8,16 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@types/node": "^22.13.10",
     "@wma/db": "*",
     "@wma/gateway": "*",
     "dotenv": "^16.4.7",
     "next": "^15.2.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "typescript": "^5.8.2"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "tsx": "^4.19.3"
   }
 }
