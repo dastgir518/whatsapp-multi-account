@@ -63,6 +63,11 @@ async function assertAccountOwner(userId: string, accountId: string) {
   });
 }
 
+function param(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] ?? "";
+  return value ?? "";
+}
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
@@ -71,7 +76,7 @@ app.get("/health", (_req, res) => {
 app.get("/invites/:token", async (req, res) => {
   try {
     const account = await prisma.waAccount.findUnique({
-      where: { inviteToken: req.params.token },
+      where: { inviteToken: param(req.params.token) },
     });
     if (!account) {
       res.status(404).json({ error: "Invite not found" });
@@ -95,7 +100,7 @@ app.get("/invites/:token", async (req, res) => {
 app.post("/invites/:token/start", async (req, res) => {
   try {
     const account = await prisma.waAccount.findUnique({
-      where: { inviteToken: req.params.token },
+      where: { inviteToken: param(req.params.token) },
     });
     if (!account) {
       res.status(404).json({ error: "Invite not found" });
@@ -126,7 +131,7 @@ app.post("/invites/:token/start", async (req, res) => {
 app.post("/invites/:token/refresh", async (req, res) => {
   try {
     const account = await prisma.waAccount.findUnique({
-      where: { inviteToken: req.params.token },
+      where: { inviteToken: param(req.params.token) },
     });
     if (!account) {
       res.status(404).json({ error: "Invite not found" });
@@ -151,7 +156,10 @@ app.post("/invites/:token/refresh", async (req, res) => {
 app.post("/accounts/:accountId/start", authMiddleware, async (req, res) => {
   try {
     const user = (req as express.Request & { user: { userId: string } }).user;
-    const account = await assertAccountOwner(user.userId, req.params.accountId);
+    const account = await assertAccountOwner(
+      user.userId,
+      param(req.params.accountId)
+    );
     if (!account) {
       res.status(404).json({ error: "Account not found" });
       return;
@@ -167,7 +175,10 @@ app.post("/accounts/:accountId/start", authMiddleware, async (req, res) => {
 app.post("/accounts/:accountId/disconnect", authMiddleware, async (req, res) => {
   try {
     const user = (req as express.Request & { user: { userId: string } }).user;
-    const account = await assertAccountOwner(user.userId, req.params.accountId);
+    const account = await assertAccountOwner(
+      user.userId,
+      param(req.params.accountId)
+    );
     if (!account) {
       res.status(404).json({ error: "Account not found" });
       return;
@@ -184,7 +195,10 @@ app.post("/accounts/:accountId/disconnect", authMiddleware, async (req, res) => 
 app.post("/accounts/:accountId/send-text", authMiddleware, async (req, res) => {
   try {
     const user = (req as express.Request & { user: { userId: string } }).user;
-    const account = await assertAccountOwner(user.userId, req.params.accountId);
+    const account = await assertAccountOwner(
+      user.userId,
+      param(req.params.accountId)
+    );
     if (!account) {
       res.status(404).json({ error: "Account not found" });
       return;
@@ -211,7 +225,7 @@ app.post(
       const user = (req as express.Request & { user: { userId: string } }).user;
       const account = await assertAccountOwner(
         user.userId,
-        req.params.accountId
+        param(req.params.accountId)
       );
       if (!account) {
         res.status(404).json({ error: "Account not found" });
@@ -242,7 +256,10 @@ app.post(
 app.post("/accounts/:accountId/mark-read", authMiddleware, async (req, res) => {
   try {
     const user = (req as express.Request & { user: { userId: string } }).user;
-    const account = await assertAccountOwner(user.userId, req.params.accountId);
+    const account = await assertAccountOwner(
+      user.userId,
+      param(req.params.accountId)
+    );
     if (!account) {
       res.status(404).json({ error: "Account not found" });
       return;
@@ -271,7 +288,7 @@ app.post(
       const user = (req as express.Request & { user: { userId: string } }).user;
       const account = await assertAccountOwner(
         user.userId,
-        req.params.accountId
+        param(req.params.accountId)
       );
       if (!account) {
         res.status(404).json({ error: "Account not found" });

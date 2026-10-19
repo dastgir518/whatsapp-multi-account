@@ -418,7 +418,7 @@ export class SessionManager {
         // Someone deleted for everyone (ProtocolMessage.Type.REVOKE = 0)
         const protoType = msg.message?.protocolMessage?.type;
         const revokedId =
-          protoType === 0 || protoType === "REVOKE"
+          protoType === 0
             ? msg.message?.protocolMessage?.key?.id
             : null;
         if (revokedId && msg.key.remoteJid) {
