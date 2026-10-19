@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String
+  createdAt    DateTime    @default(now())
+  accounts     WaAccount[]
+}
+
+model WaAccount {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone       String
+  pushName    String?
+  status      String    @default("pending") // pending | connected | disconnected
+  inviteToken String?   @unique
+  lastSeenAt  DateTime?
+  createdAt   DateTime  @default(now())
+  chats       Chat[]
+
+  @@unique([userId, phone])
+  @@index([userId])
+}
+
+model Chat {
+  id            String    @id @default(cuid())
+  waAccountId   String
+  waAccount     WaAccount @relation(fields: [waAccountId], references: [id], onDelete: Cascade)
+  jid           String
+  name          String?
+  isGroup       Boolean   @default(false)
+  unreadCount   Int       @default(0)
+  lastMessageAt DateTime?
+  lastPreview   String?
+  messages      Message[]
+
+  @@unique([waAccountId, jid])
+  @@index([waAccountId, lastMessageAt])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  chatId      String
+  chat        Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  waMessageId String
+  fromMe      Boolean  @default(false)
+  senderJid   String?
+  type        String   @default("text") // text | image | video | audio | document
+  body        String?
+  mediaPath   String?
+  timestamp   DateTime
+  status      String? // pending | sent | delivered | read
+
+  @@unique([chatId, waMessageId])
+  @@index([chatId, timestamp])
+}
