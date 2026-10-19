@@ -52,3 +52,13 @@ If it still says `Entry file: none`, the setting was not saved — set it again 
 1. Redeploy once more (regenerates `public_html/.htaccess`)
 2. Check **Runtime logs** (not only build logs) for crashes on startup
 3. Confirm the site is a **Node.js web app**, not a normal PHP website
+
+## If runtime says build artifacts missing (503)
+
+Hostinger’s publish step often drops `.next` / `dist`. This repo builds to:
+
+- `apps/web/next-build`
+- `apps/host/build`
+- `apps/gateway/build`
+
+`server.js` will **re-run `npm run build`** on start if those folders are missing (first boot may take several minutes).

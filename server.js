@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * Hostinger entry file — MUST be set in hPanel as Entry file: server.js
+ * Hostinger entry file — set Entry file to: server.js
  *
- * Framework: Express (or Other)
- * Build: build
- * Entry: server.js
+ * Hostinger often strips `.next` / `dist` when publishing to /nodejs.
+ * We build into `next-build` + `build` (non-hidden) and rebuild here if missing.
  */
 "use strict";
 
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
 process.env.NODE_ENV = process.env.NODE_ENV || "production";
 
@@ -21,7 +21,6 @@ try {
   /* optional */
 }
 
-// Absolute SQLite path (Hostinger-safe)
 const dataDir = path.join(root, "data");
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(path.join(root, "auth"), { recursive: true });
@@ -35,23 +34,54 @@ if (
   process.env.DATABASE_URL = `file:${dbFile}`;
 }
 
-const hostEntry = path.join(root, "apps", "host", "dist", "index.js");
-const webNext = path.join(root, "apps", "web", ".next");
+const hostEntry = path.join(root, "apps", "host", "build", "index.js");
+const gatewayEntry = path.join(
+  root,
+  "apps",
+  "gateway",
+  "build",
+  "create-gateway.js"
+);
+const webNext = path.join(root, "apps", "web", "next-build");
+
+function exists(p) {
+  return fs.existsSync(p);
+}
 
 console.log("[server.js] cwd=", process.cwd());
 console.log("[server.js] root=", root);
 console.log("[server.js] PORT=", process.env.PORT || "(unset)");
 console.log("[server.js] DATABASE_URL=", process.env.DATABASE_URL);
-console.log("[server.js] hostEntry exists=", fs.existsSync(hostEntry));
-console.log("[server.js] web .next exists=", fs.existsSync(webNext));
+console.log("[server.js] hostEntry exists=", exists(hostEntry));
+console.log("[server.js] gatewayEntry exists=", exists(gatewayEntry));
+console.log("[server.js] web next-build exists=", exists(webNext));
 
-if (!fs.existsSync(hostEntry)) {
-  console.error("[server.js] FATAL: apps/host/dist/index.js missing — build failed?");
+if (!exists(hostEntry) || !exists(gatewayEntry) || !exists(webNext)) {
+  console.log(
+    "[server.js] Build artifacts missing in /nodejs — running npm run build now…"
+  );
+  try {
+    execSync("npm run build", {
+      cwd: root,
+      stdio: "inherit",
+      env: process.env,
+    });
+  } catch (err) {
+    console.error("[server.js] FATAL: npm run build failed", err);
+    process.exit(1);
+  }
+  console.log("[server.js] hostEntry exists=", exists(hostEntry));
+  console.log("[server.js] gatewayEntry exists=", exists(gatewayEntry));
+  console.log("[server.js] web next-build exists=", exists(webNext));
+}
+
+if (!exists(hostEntry)) {
+  console.error("[server.js] FATAL: apps/host/build/index.js still missing");
   process.exit(1);
 }
 
-if (!fs.existsSync(webNext)) {
-  console.error("[server.js] FATAL: apps/web/.next missing — next build failed?");
+if (!exists(webNext)) {
+  console.error("[server.js] FATAL: apps/web/next-build still missing");
   process.exit(1);
 }
 

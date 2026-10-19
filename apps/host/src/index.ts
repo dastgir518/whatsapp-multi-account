@@ -36,7 +36,10 @@ function ensureRuntimeEnv() {
   console.log("[host] projectRoot=", projectRoot);
   console.log("[host] DATABASE_URL=", process.env.DATABASE_URL);
   console.log("[host] webDir=", webDir);
-  console.log("[host] web .next exists=", fs.existsSync(path.join(webDir, ".next")));
+  console.log(
+    "[host] web next-build exists=",
+    fs.existsSync(path.join(webDir, "next-build"))
+  );
 }
 
 function ensureDatabase() {

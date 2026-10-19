@@ -1,6 +1,4 @@
 node_modules
-.next
-dist
 .env
 .env.*
 !.env.example
@@ -11,8 +9,13 @@ media/
 *.db-journal
 .DS_Store
 *.log
-apps/web/.next
-apps/gateway/dist
 cookies.txt
-*.txt
-!README.md
+
+# Local Next default dir (we use next-build for Hostinger)
+.next
+apps/web/.next
+
+# Old tsc outDirs (we use build/ now — NOT ignored so Hostinger publish keeps them)
+dist
+apps/gateway/dist
+apps/host/dist

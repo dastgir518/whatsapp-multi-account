@@ -2,8 +2,9 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  // Hostinger runs a custom unified server (server.js → @wma/host).
-  // Do not use `output: "standalone"` here — the host process serves Next.
+  // Hostinger publish often strips hidden folders like `.next`.
+  // Use a non-dot output dir so build artifacts survive deploy.
+  distDir: "next-build",
   transpilePackages: ["@wma/db"],
   serverExternalPackages: ["@prisma/client", "bcryptjs"],
   webpack: (config) => {

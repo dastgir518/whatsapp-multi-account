@@ -2,15 +2,15 @@
   "name": "@wma/gateway",
   "version": "0.0.1",
   "private": true,
-  "main": "./dist/index.js",
+  "main": "./build/index.js",
   "exports": {
-    ".": "./dist/index.js",
-    "./create-gateway": "./dist/create-gateway.js"
+    ".": "./build/index.js",
+    "./create-gateway": "./build/create-gateway.js"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node build/index.js"
   },
   "dependencies": {
     "@hapi/boom": "^10.0.1",
