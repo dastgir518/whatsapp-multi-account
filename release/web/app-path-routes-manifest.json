@@ -1,0 +1,22 @@
+{
+  "/api/accounts/[id]/chats/route": "/api/accounts/[id]/chats",
+  "/api/accounts/[id]/chats/[chatId]/messages/route": "/api/accounts/[id]/chats/[chatId]/messages",
+  "/api/accounts/[id]/mark-read/route": "/api/accounts/[id]/mark-read",
+  "/api/accounts/[id]/invite/route": "/api/accounts/[id]/invite",
+  "/_not-found/page": "/_not-found",
+  "/api/accounts/[id]/send/route": "/api/accounts/[id]/send",
+  "/api/accounts/[id]/route": "/api/accounts/[id]",
+  "/api/auth/login/route": "/api/auth/login",
+  "/api/accounts/route": "/api/accounts",
+  "/api/auth/me/route": "/api/auth/me",
+  "/api/auth/logout/route": "/api/auth/logout",
+  "/api/accounts/[id]/messages/[messageId]/route": "/api/accounts/[id]/messages/[messageId]",
+  "/api/invites/[token]/route": "/api/invites/[token]",
+  "/api/auth/signup/route": "/api/auth/signup",
+  "/api/invites/route": "/api/invites",
+  "/app/page": "/app",
+  "/login/page": "/login",
+  "/invite/[token]/page": "/invite/[token]",
+  "/signup/page": "/signup",
+  "/page": "/"
+}

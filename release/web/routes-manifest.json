@@ -1,0 +1,146 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/api/accounts/[id]",
+      "regex": "^/api/accounts/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/accounts/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/accounts/[id]/chats",
+      "regex": "^/api/accounts/([^/]+?)/chats(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/accounts/(?<nxtPid>[^/]+?)/chats(?:/)?$"
+    },
+    {
+      "page": "/api/accounts/[id]/chats/[chatId]/messages",
+      "regex": "^/api/accounts/([^/]+?)/chats/([^/]+?)/messages(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid",
+        "nxtPchatId": "nxtPchatId"
+      },
+      "namedRegex": "^/api/accounts/(?<nxtPid>[^/]+?)/chats/(?<nxtPchatId>[^/]+?)/messages(?:/)?$"
+    },
+    {
+      "page": "/api/accounts/[id]/invite",
+      "regex": "^/api/accounts/([^/]+?)/invite(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/accounts/(?<nxtPid>[^/]+?)/invite(?:/)?$"
+    },
+    {
+      "page": "/api/accounts/[id]/mark-read",
+      "regex": "^/api/accounts/([^/]+?)/mark\\-read(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/accounts/(?<nxtPid>[^/]+?)/mark\\-read(?:/)?$"
+    },
+    {
+      "page": "/api/accounts/[id]/messages/[messageId]",
+      "regex": "^/api/accounts/([^/]+?)/messages/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid",
+        "nxtPmessageId": "nxtPmessageId"
+      },
+      "namedRegex": "^/api/accounts/(?<nxtPid>[^/]+?)/messages/(?<nxtPmessageId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/accounts/[id]/send",
+      "regex": "^/api/accounts/([^/]+?)/send(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/accounts/(?<nxtPid>[^/]+?)/send(?:/)?$"
+    },
+    {
+      "page": "/api/invites/[token]",
+      "regex": "^/api/invites/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtoken": "nxtPtoken"
+      },
+      "namedRegex": "^/api/invites/(?<nxtPtoken>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/invite/[token]",
+      "regex": "^/invite/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtoken": "nxtPtoken"
+      },
+      "namedRegex": "^/invite/(?<nxtPtoken>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/app",
+      "regex": "^/app(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/app(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/signup",
+      "regex": "^/signup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/signup(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "/api/accounts/[id]/chats/route": "app/api/accounts/[id]/chats/route.js",
+  "/api/accounts/[id]/chats/[chatId]/messages/route": "app/api/accounts/[id]/chats/[chatId]/messages/route.js",
+  "/api/accounts/[id]/mark-read/route": "app/api/accounts/[id]/mark-read/route.js",
+  "/api/accounts/[id]/invite/route": "app/api/accounts/[id]/invite/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/accounts/[id]/send/route": "app/api/accounts/[id]/send/route.js",
+  "/api/accounts/[id]/route": "app/api/accounts/[id]/route.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/accounts/route": "app/api/accounts/route.js",
+  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/api/auth/logout/route": "app/api/auth/logout/route.js",
+  "/api/accounts/[id]/messages/[messageId]/route": "app/api/accounts/[id]/messages/[messageId]/route.js",
+  "/api/invites/[token]/route": "app/api/invites/[token]/route.js",
+  "/api/auth/signup/route": "app/api/auth/signup/route.js",
+  "/api/invites/route": "app/api/invites/route.js",
+  "/app/page": "app/app/page.js",
+  "/login/page": "app/login/page.js",
+  "/invite/[token]/page": "app/invite/[token]/page.js",
+  "/signup/page": "app/signup/page.js",
+  "/page": "app/page.js"
+}

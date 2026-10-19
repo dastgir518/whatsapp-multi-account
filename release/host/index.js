@@ -6,9 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Unified Hostinger-compatible server:
  * one Node process = Next.js UI + Baileys WhatsApp gateway + Socket.IO
- *
- * Important: bind PORT immediately so Hostinger does not return 503
- * while Next.js is still preparing.
  */
 require("dotenv/config");
 const fs_1 = __importDefault(require("fs"));
@@ -20,21 +17,33 @@ const create_gateway_1 = require("@wma/gateway/create-gateway");
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || "0.0.0.0";
 const dev = process.env.NODE_ENV !== "production";
-const projectRoot = path_1.default.resolve(__dirname, "../../..");
-const webDir = path_1.default.resolve(__dirname, "../../web");
+const projectRoot = process.env.PROJECT_ROOT ||
+    (fs_1.default.existsSync(path_1.default.join(__dirname, "../../package.json"))
+        ? path_1.default.resolve(__dirname, "../..") // running from release/host
+        : path_1.default.resolve(__dirname, "../../..")); // running from apps/host/build
+const webDir = process.env.WEB_DIR || path_1.default.join(projectRoot, "apps", "web");
 function ensureRuntimeEnv() {
     fs_1.default.mkdirSync(path_1.default.join(projectRoot, "data"), { recursive: true });
     fs_1.default.mkdirSync(path_1.default.join(projectRoot, "auth"), { recursive: true });
     fs_1.default.mkdirSync(path_1.default.join(projectRoot, "media"), { recursive: true });
     const dbFile = path_1.default.join(projectRoot, "data", "app.db");
     const current = process.env.DATABASE_URL || "";
-    if (!current || current.startsWith("file:./") || current.startsWith("file:data")) {
+    if (!current ||
+        current.startsWith("file:./") ||
+        current.includes("file:data")) {
         process.env.DATABASE_URL = `file:${dbFile}`;
+    }
+    // Prefer staged Next output from /release/web (committed for Hostinger)
+    const releaseWeb = path_1.default.join(projectRoot, "release", "web");
+    const nextBuild = path_1.default.join(webDir, "next-build");
+    if (fs_1.default.existsSync(releaseWeb) && !fs_1.default.existsSync(nextBuild)) {
+        console.log("[host] copying release/web -> apps/web/next-build");
+        fs_1.default.cpSync(releaseWeb, nextBuild, { recursive: true });
     }
     console.log("[host] projectRoot=", projectRoot);
     console.log("[host] DATABASE_URL=", process.env.DATABASE_URL);
     console.log("[host] webDir=", webDir);
-    console.log("[host] web next-build exists=", fs_1.default.existsSync(path_1.default.join(webDir, "next-build")));
+    console.log("[host] next-build exists=", fs_1.default.existsSync(path_1.default.join(webDir, "next-build")));
 }
 function ensureDatabase() {
     try {
@@ -61,11 +70,7 @@ async function main() {
         const pathname = url.split("?")[0] || "/";
         if (pathname === "/health" || pathname === "/ready") {
             res.writeHead(ready ? 200 : 503, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({
-                ok: ready,
-                error: bootError,
-                port: PORT,
-            }));
+            res.end(JSON.stringify({ ok: ready, error: bootError, port: PORT }));
             return;
         }
         if (!ready || !handle) {
@@ -87,7 +92,6 @@ async function main() {
         }
         void handle(req, res);
     });
-    // Bind immediately so Hostinger proxy finds an open port (avoids hard 503)
     await new Promise((resolve, reject) => {
         server.once("error", reject);
         server.listen(PORT, HOST, () => {
@@ -120,7 +124,6 @@ async function main() {
     catch (err) {
         bootError = err instanceof Error ? err.stack || err.message : String(err);
         console.error("[host] boot failed:", bootError);
-        // Keep process alive so /health and startup HTML stay available for debugging
     }
 }
 main().catch((err) => {

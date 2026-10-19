@@ -15,7 +15,12 @@ cookies.txt
 .next
 apps/web/.next
 
-# Old tsc outDirs (we use build/ now — NOT ignored so Hostinger publish keeps them)
+# Old tsc outDirs
 dist
 apps/gateway/dist
 apps/host/dist
+
+# Local compile dirs (Hostinger uses committed /release instead)
+apps/web/next-build
+apps/host/build
+apps/gateway/build
