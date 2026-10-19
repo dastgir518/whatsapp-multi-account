@@ -1,58 +1,60 @@
-# Deploy on Hostinger
+# Deploy full app on Hostinger (single process)
 
-The earlier **403 Forbidden** happened because Hostinger built the monorepo as **Application type: Other** with no Node entry server. Next.js never started, so Apache returned 403.
+Yes — the app is set up so **one Node process** runs everything:
 
-## hPanel settings (required)
+- Next.js website (login, chats UI, invites)
+- WhatsApp Baileys gateway
+- Socket.IO realtime
 
-In **Websites → your site → Deployments / Node.js**:
+## hPanel settings
 
 | Setting | Value |
 | --- | --- |
-| Application type | **Next.js** (preferred) **or** Other |
+| Application type | **Other** |
 | Root directory | `/` (repo root) |
 | Build script | `build` |
-| Output directory | `.next` if Next.js type, otherwise leave empty for Other |
-| Entry file | `server.js` (use this if Application type is **Other**) |
-| Node.js | 20 or 22 |
+| Entry file | `server.js` |
+| Node.js | **20** or **22** |
 
-If you pick **Next.js**, also try Output directory: `apps/web/.next`.
-
-After changing settings, **Redeploy** from GitHub `main`.
+Then **Redeploy** from GitHub `main`.
 
 ## Environment variables
 
-Add these in hPanel → Node.js → Environment variables:
-
 ```
-JWT_SECRET=a-long-random-secret
+NODE_ENV=production
+JWT_SECRET=change-me-to-a-long-random-string
 DATABASE_URL=file:./data/app.db
-NEXT_PUBLIC_GATEWAY_URL=https://YOUR-DOMAIN
-GATEWAY_URL=http://127.0.0.1:4000
+# Leave NEXT_PUBLIC_GATEWAY_URL empty → same website URL (required for Hostinger)
 WEB_ORIGIN=https://YOUR-DOMAIN
 ```
 
-Create a writable `data/` folder on the server for SQLite (or use an absolute path Hostinger allows).
+Optional (only if you split gateway later):
 
-## Important limitation
-
-This project is **two processes**:
-
-1. **Next.js web** (login, UI, APIs) — what Hostinger Node hosting runs  
-2. **Baileys gateway** (WhatsApp sockets on port 4000) — needs a **always-on** Node process
-
-Hostinger Web App hosting typically runs **one** start command (`server.js` / Next). WhatsApp linking will **not** work until the gateway also runs (VPS, separate Node app, or PM2 on a VPS).
-
-For invite QR / chat send to work, run the gateway on a VPS:
-
-```bash
-npm run start:gateway
+```
+NEXT_PUBLIC_GATEWAY_URL=https://other-gateway-host
+GATEWAY_URL=https://other-gateway-host
 ```
 
-Point `NEXT_PUBLIC_GATEWAY_URL` at that gateway’s public HTTPS URL (with CORS `WEB_ORIGIN` set to your Hostinger site).
+## After first deploy
 
-## After deploy checklist
+1. Open your domain — you should see the login page (not 403)
+2. Sign up / log in
+3. Create an invite or link a WhatsApp account — QR/code should appear on the **same** domain
 
-1. Open the site — you should see the login page (not 403)  
-2. Sign up / log in  
-3. Confirm env vars are set  
-4. Run gateway separately for WhatsApp features  
+## Local unified mode (same as Hostinger)
+
+```bash
+npm install
+npm run db:push
+npm run build
+npm start
+```
+
+Opens everything on `http://localhost:3000`.
+
+## Notes / limits
+
+- Hostinger must allow a **long-running** Node app and **WebSockets** (their Node.js Web App product does; plain static PHP hosting does not).
+- Free/shared plans may kill or sleep the process — WhatsApp will disconnect until the app wakes and sessions restore from `auth/`.
+- Keep enough disk for `auth/` and `media/`.
+- If QR never appears, check deploy logs for Baileys errors and that `server.js` is the entry file.

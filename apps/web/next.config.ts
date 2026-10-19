@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  // Required for Hostinger Node.js / Passenger — without this you get 403
-  output: "standalone",
+  // Hostinger runs a custom unified server (server.js → @wma/host).
+  // Do not use `output: "standalone"` here — the host process serves Next.
   transpilePackages: ["@wma/db"],
   serverExternalPackages: ["@prisma/client", "bcryptjs"],
   webpack: (config) => {

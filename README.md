@@ -20,9 +20,9 @@ cp packages/db/.env.example packages/db/.env
 npm run db:push
 ```
 
-### Hostinger deploy
+### Hostinger deploy (full app, one process)
 
-See [HOSTINGER.md](HOSTINGER.md). Use **Application type: Next.js** (or Other + entry `server.js`), build script `build`, and redeploy after the latest `main` push to fix 403.
+See [HOSTINGER.md](HOSTINGER.md). Use **Application type: Other**, entry **`server.js`**, build script **`build`**. Web UI and WhatsApp gateway run together.
 
 Ensure these match across services (defaults are fine for local):
 

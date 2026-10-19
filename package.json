@@ -8,8 +8,9 @@
   "scripts": {
     "dev:web": "npm run dev -w @wma/web",
     "dev:gateway": "npm run dev -w @wma/gateway",
+    "dev:host": "npm run build -w @wma/gateway && npm run dev -w @wma/host",
     "dev": "concurrently -n gateway,web -c green,cyan \"npm run dev:gateway\" \"npm run dev:web\"",
-    "build": "npm run build -w @wma/db && npm run build -w @wma/web && node scripts/prepare-standalone.mjs",
+    "build": "npm run build -w @wma/db && npm run build -w @wma/gateway && npm run build -w @wma/web && npm run build -w @wma/host",
     "start": "node server.js",
     "start:web": "npm run start -w @wma/web",
     "start:gateway": "npm run start -w @wma/gateway",

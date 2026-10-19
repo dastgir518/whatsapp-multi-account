@@ -2,6 +2,11 @@
   "name": "@wma/gateway",
   "version": "0.0.1",
   "private": true,
+  "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./create-gateway": "./dist/create-gateway.js"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
