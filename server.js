@@ -4,11 +4,13 @@
  *
  * Hostinger only keeps git-tracked files in /nodejs (plus node_modules).
  * Next build output is committed under /release/web.
+ * Prisma client must be generated at runtime (node_modules/.prisma is not in git).
  */
 "use strict";
 
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
 process.env.NODE_ENV = process.env.NODE_ENV || "production";
 
@@ -39,9 +41,19 @@ const releaseHost = path.join(root, "release", "host", "index.js");
 const releaseWeb = path.join(root, "release", "web");
 const appsHost = path.join(root, "apps", "host", "build", "index.js");
 const nextBuild = path.join(root, "apps", "web", "next-build");
+const schemaPath = path.join(root, "packages", "db", "prisma", "schema.prisma");
 
 function exists(p) {
   return fs.existsSync(p);
+}
+
+function run(cmd, label) {
+  console.log("[server.js]", label);
+  execSync(cmd, {
+    cwd: root,
+    stdio: "inherit",
+    env: process.env,
+  });
 }
 
 console.log("[server.js] PORT=", process.env.PORT || "(unset)");
@@ -66,6 +78,22 @@ if (exists(releaseGateway) && !exists(path.join(appsGateway, "create-gateway.js"
 if (exists(releaseHostDir) && !exists(appsHostBuild)) {
   console.log("[server.js] copying release/host -> apps/host/build");
   fs.cpSync(releaseHostDir, appsHostBuild, { recursive: true });
+}
+
+// Hostinger npm install leaves @prisma/client as a stub — always generate + sync schema
+if (!exists(schemaPath)) {
+  console.error("[server.js] FATAL: missing", schemaPath);
+  process.exit(1);
+}
+try {
+  run(`npx prisma generate --schema="${schemaPath}"`, "prisma generate…");
+  run(
+    `npx prisma db push --schema="${schemaPath}" --skip-generate`,
+    "prisma db push…",
+  );
+} catch (err) {
+  console.error("[server.js] FATAL: prisma setup failed", err);
+  process.exit(1);
 }
 
 const hostEntry = exists(releaseHost) ? releaseHost : appsHost;

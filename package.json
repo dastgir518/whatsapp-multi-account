@@ -16,15 +16,18 @@
     "start:gateway": "npm run start -w @wma/gateway",
     "db:generate": "npm run generate -w @wma/db",
     "db:migrate": "npm run migrate -w @wma/db",
-    "db:push": "npm run push -w @wma/db"
+    "db:push": "npm run push -w @wma/db",
+    "postinstall": "prisma generate --schema=packages/db/prisma/schema.prisma"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
+    "@prisma/client": "^6.5.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "next": "^15.2.2",
+    "prisma": "^6.5.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

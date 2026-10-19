@@ -14,5 +14,8 @@
     "@prisma/client": "^6.5.0",
     "prisma": "^6.5.0",
     "typescript": "^5.8.2"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   }
 }
