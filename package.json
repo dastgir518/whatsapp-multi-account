@@ -9,10 +9,21 @@
     "dev:web": "npm run dev -w @wma/web",
     "dev:gateway": "npm run dev -w @wma/gateway",
     "dev": "concurrently -n gateway,web -c green,cyan \"npm run dev:gateway\" \"npm run dev:web\"",
-    "build": "npm run build -w @wma/db && npm run build -w @wma/gateway && npm run build -w @wma/web",
+    "build": "npm run build -w @wma/db && npm run build -w @wma/web && node scripts/prepare-standalone.mjs",
+    "start": "node server.js",
+    "start:web": "npm run start -w @wma/web",
+    "start:gateway": "npm run start -w @wma/gateway",
     "db:generate": "npm run generate -w @wma/db",
     "db:migrate": "npm run migrate -w @wma/db",
     "db:push": "npm run push -w @wma/db"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "next": "^15.2.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "concurrently": "^10.0.6"

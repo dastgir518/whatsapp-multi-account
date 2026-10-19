@@ -14,8 +14,15 @@ Self-hosted web app to sign up, link multiple WhatsApp accounts (QR or pairing c
 
 ```bash
 npm install
+cp apps/web/.env.example apps/web/.env.local
+cp apps/gateway/.env.example apps/gateway/.env
+cp packages/db/.env.example packages/db/.env
 npm run db:push
 ```
+
+### Hostinger deploy
+
+See [HOSTINGER.md](HOSTINGER.md). Use **Application type: Next.js** (or Other + entry `server.js`), build script `build`, and redeploy after the latest `main` push to fix 403.
 
 Ensure these match across services (defaults are fine for local):
 
