@@ -1,14 +1,10 @@
 #!/usr/bin/env node
 /**
- * Hostinger entry file (REQUIRED in hPanel).
+ * Hostinger entry file — MUST be set in hPanel as Entry file: server.js
  *
- * hPanel → Deployments → Settings:
- *   Application type : Express   (or Other)
- *   Build script     : build
- *   Entry file       : server.js   ← must not be empty
- *   Node.js          : 22
- *
- * If Entry file is empty, Hostinger serves no Node process → 403 Forbidden.
+ * Framework: Express (or Other)
+ * Build: build
+ * Entry: server.js
  */
 "use strict";
 
@@ -17,23 +13,46 @@ const path = require("path");
 
 process.env.NODE_ENV = process.env.NODE_ENV || "production";
 
-// Load root .env if present (optional; hPanel env vars also work)
+const root = __dirname;
+
 try {
-  require("dotenv").config({ path: path.join(__dirname, ".env") });
+  require("dotenv").config({ path: path.join(root, ".env") });
 } catch {
-  /* dotenv may not resolve from root; host package loads it too */
+  /* optional */
 }
 
-const hostEntry = path.join(__dirname, "apps", "host", "dist", "index.js");
+// Absolute SQLite path (Hostinger-safe)
+const dataDir = path.join(root, "data");
+fs.mkdirSync(dataDir, { recursive: true });
+fs.mkdirSync(path.join(root, "auth"), { recursive: true });
+fs.mkdirSync(path.join(root, "media"), { recursive: true });
+const dbFile = path.join(dataDir, "app.db");
+if (
+  !process.env.DATABASE_URL ||
+  process.env.DATABASE_URL.startsWith("file:./") ||
+  process.env.DATABASE_URL.includes("file:data")
+) {
+  process.env.DATABASE_URL = `file:${dbFile}`;
+}
+
+const hostEntry = path.join(root, "apps", "host", "dist", "index.js");
+const webNext = path.join(root, "apps", "web", ".next");
+
+console.log("[server.js] cwd=", process.cwd());
+console.log("[server.js] root=", root);
+console.log("[server.js] PORT=", process.env.PORT || "(unset)");
+console.log("[server.js] DATABASE_URL=", process.env.DATABASE_URL);
+console.log("[server.js] hostEntry exists=", fs.existsSync(hostEntry));
+console.log("[server.js] web .next exists=", fs.existsSync(webNext));
 
 if (!fs.existsSync(hostEntry)) {
-  console.error("[server.js] Missing apps/host/dist/index.js");
-  console.error("[server.js] Build may have failed or Entry file points to wrong place.");
-  console.error("[server.js] Expected after `npm run build`.");
+  console.error("[server.js] FATAL: apps/host/dist/index.js missing — build failed?");
   process.exit(1);
 }
 
-console.log("[server.js] Starting unified app (Next.js + WhatsApp gateway)...");
-console.log("[server.js] PORT=", process.env.PORT || "(Hostinger will set PORT)");
+if (!fs.existsSync(webNext)) {
+  console.error("[server.js] FATAL: apps/web/.next missing — next build failed?");
+  process.exit(1);
+}
 
 require(hostEntry);
