@@ -1,62 +1,54 @@
-# Deploy full app on Hostinger (single process)
+# Fix 403 Forbidden on Hostinger
 
-Yes — the app is set up so **one Node process** runs everything:
+A **green build with 403** almost always means:
 
-- Next.js website (login, chats UI, invites)
-- WhatsApp Baileys gateway
-- Socket.IO realtime
+> **Entry file is empty** → no Node process starts → Apache returns 403.
 
-## hPanel settings
+Your earlier logs showed: `Entry file: none`. That must be fixed in hPanel (code alone cannot set it).
 
-| Setting | Value |
+## Exact hPanel settings
+
+1. Open **hPanel** → your website → **Node.js** / **Deployments**
+2. Open **Settings** (or Edit deploy settings)
+3. Set:
+
+| Field | Value |
 | --- | --- |
-| Application type | **Other** |
-| Root directory | `/` (repo root) |
-| Build script | `build` |
-| Entry file | **`server.js`** (required — if this is empty you get 403) |
-| Node.js | **20** or **22** |
+| Application type / Framework | **Express** |
+| Build script / Build command | `build` |
+| Output directory | *(leave empty)* |
+| **Entry file** | **`server.js`** |
+| Node.js version | **22** |
+| Branch | `main` |
 
-Do **not** rely on `NODE_ENV=production` alone during install without `.npmrc` — the repo sets `production=false` so TypeScript/`@types` install for the build.
+4. Save
+5. Click **Redeploy** (or push to GitHub again)
+6. After deploy, if there is a **Running** badge, click **Restart**
 
-Then **Redeploy** from GitHub `main`.
-
-## Environment variables
+## Environment variables (hPanel)
 
 ```
-NODE_ENV=production
-JWT_SECRET=change-me-to-a-long-random-string
+JWT_SECRET=your-secret
 DATABASE_URL=file:./data/app.db
-# Leave NEXT_PUBLIC_GATEWAY_URL empty → same website URL (required for Hostinger)
-WEB_ORIGIN=https://YOUR-DOMAIN
+WEB_ORIGIN=https://cyan-butterfly-627461.hostingersite.com
+NODE_ENV=production
 ```
 
-Optional (only if you split gateway later):
+Leave `NEXT_PUBLIC_GATEWAY_URL` unset.
+
+## How to verify Entry file is set
+
+Open the latest **build log**. You must see something like:
 
 ```
-NEXT_PUBLIC_GATEWAY_URL=https://other-gateway-host
-GATEWAY_URL=https://other-gateway-host
+Entry file:         server.js
+Application type:   Express
 ```
 
-## After first deploy
+If it still says `Entry file: none`, the setting was not saved — set it again and redeploy.
 
-1. Open your domain — you should see the login page (not 403)
-2. Sign up / log in
-3. Create an invite or link a WhatsApp account — QR/code should appear on the **same** domain
+## If still 403 after Entry file is server.js
 
-## Local unified mode (same as Hostinger)
-
-```bash
-npm install
-npm run db:push
-npm run build
-npm start
-```
-
-Opens everything on `http://localhost:3000`.
-
-## Notes / limits
-
-- Hostinger must allow a **long-running** Node app and **WebSockets** (their Node.js Web App product does; plain static PHP hosting does not).
-- Free/shared plans may kill or sleep the process — WhatsApp will disconnect until the app wakes and sessions restore from `auth/`.
-- Keep enough disk for `auth/` and `media/`.
-- If QR never appears, check deploy logs for Baileys errors and that `server.js` is the entry file.
+1. Redeploy once more (regenerates `public_html/.htaccess`)
+2. Check **Runtime logs** (not only build logs) for crashes on startup
+3. Confirm the site is a **Node.js web app**, not a normal PHP website
